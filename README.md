@@ -1,0 +1,1 @@
+# ayumi760405.github.io
