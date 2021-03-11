@@ -5,10 +5,10 @@
 　</head>
 　<body>welcome</body>
 
-    <div style="visibility:hidden" id="dialog" title="Download Betway">
+    <!-- <div id="dialog" title="Download Betway">
         <p>Qr Code:</p>
-        <img src="/images/qr-code.png" alt="Download" width="80", height="80"/>
-    </div>
+        <img src="/images/qr-code.png" alt="Download" width="80" height="80"/>
+    </div> -->
     <script>
 
     function browserRedirect() {
@@ -48,7 +48,8 @@
                 location.href = "https://th.bwtiyu.com/plus/promotion/sports.htm"; }
         }else{
             // mobile
-            $("#dialog").dialog();
+            alert(<img src="/images/qr-code.png" width="80" height="80"/>)
+
             // window.location = 'https://betwaynativeapp-thb.app.link/19qTSpKNweb';
         }
     }
