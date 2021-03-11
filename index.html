@@ -4,11 +4,13 @@
 　<title>have fun</title>
 　</head>
 　<body>welcome</body>
-    <div id="dialog" title="Download Betway">
+
+    <div style="visibility:hidden" id="dialog" title="Download Betway">
         <p>Qr Code:</p>
-        <img src="/images/qr-code.png" alt="Download" />
+        <img src="/images/qr-code.png" alt="Download" width="80", height="80"/>
     </div>
     <script>
+
     function browserRedirect() {
     
         var sUserAgent = navigator.userAgent.toLowerCase();
@@ -42,10 +44,12 @@
 
         if (!(bIsIpad || bIsIphoneOs || bIsMidp || bIsUc7 || bIsUc || bIsAndroid || bIsCE || bIsWM) ){
             // desktop
-            document.onmouseover = function(){ location.href = "https://th.bwtiyu.com/plus/promotion/sports.htm"; }
+            document.onmouseover = function(){ 
+                location.href = "https://th.bwtiyu.com/plus/promotion/sports.htm"; }
         }else{
             // mobile
-            window.location = 'https://betwaynativeapp-thb.app.link/19qTSpKNweb';
+            $("#dialog").dialog();
+            // window.location = 'https://betwaynativeapp-thb.app.link/19qTSpKNweb';
         }
     }
     
