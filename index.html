@@ -1,61 +1,1274 @@
-<!DOCTYOE html>
-<html>
-　<head>
-　<title>have fun</title>
-　</head>
-　<body>welcome</body>
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>彩虹魔法筆 - 小朋友的創意著色樂園</title>
+    <style>
+        /* 基本樣式重置 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    <div id="dialog" title="App">
-        <img src="/images/qr-code.png" alt="Download" width="500" height="500"/>
-    </div> 
+        body {
+            font-family: 'Arial Rounded MT Bold', 'Arial', sans-serif;
+            background-color: #faf5ff; /* 淡紫色背景 */
+            color: #553c9a;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+        }
+
+        /* 主容器 */
+        .app-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            padding: 8px;
+        }
+
+        /* 橫向模式 (默認) */
+        .landscape-mode {
+            flex-direction: row;
+        }
+
+        /* 直向模式 */
+        .portrait-mode {
+            flex-direction: column;
+        }
+
+        /* 工具欄 */
+        .toolbar {
+            background-color: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            padding: 12px;
+        }
+
+        /* 橫向模式下的工具欄 */
+        .landscape-mode .toolbar {
+            width: 80px;
+            height: 100%;
+            flex-direction: column;
+            justify-content: space-between;
+            margin-right: 8px;
+        }
+
+        /* 直向模式下的工具欄 */
+        .portrait-mode .toolbar {
+            width: 100%;
+            height: 80px;
+            flex-direction: row;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        /* 工具按鈕組 */
+        .tool-group {
+            display: flex;
+        }
+
+        .landscape-mode .tool-group {
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .portrait-mode .tool-group {
+            flex-direction: row;
+            gap: 16px;
+        }
+
+        /* 工具按鈕 */
+        .tool-btn {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            border: none;
+            background-color: #f3e8ff;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s;
+        }
+
+        .tool-btn:hover {
+            background-color: #e9d5ff;
+        }
+
+        .tool-btn.active {
+            background-color: #d8b4fe;
+        }
+
+        /* 工具圖標 */
+        .tool-icon {
+            width: 24px;
+            height: 24px;
+        }
+
+        /* 主要繪圖區域 */
+        .drawing-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        /* SVG畫布區域 */
+        .canvas {
+            flex: 1;
+            background-color: #f8fafc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        /* 畫布容器 */
+        .canvas-container {
+            position: relative;
+            width: 90%;
+            height: 90%;
+            max-width: 800px;
+            max-height: 600px;
+        }
+
+        /* 著色層 (用戶繪製和填充的底層) */
+        .coloring-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: all;
+        }
+        
+        /* 線稿層SVG (保持在最上層) */
+        .outline-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 2;
+            pointer-events: none; /* 允許點擊穿透到底層 */
+        }
+        
+        .canvas svg {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+        
+        /* 空白畫布樣式 */
+        .empty-canvas {
+            width: 90%;
+            height: 90%;
+            max-width: 800px;
+            max-height: 600px;
+            background-color: #ffffff;
+            border: 2px dashed #d8b4fe;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        /* 底部控制區域 */
+        .controls {
+            padding: 16px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        /* 顏色選擇器 */
+        .color-palette {
+            margin-bottom: 16px;
+        }
+
+        .palette-title {
+            font-size: 16px;
+            margin-bottom: 8px;
+            color: #6b46c1;
+        }
+
+        .colors {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .color-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            cursor: pointer;
+        }
+
+        .color-btn.active {
+            border-color: #4c1d95;
+        }
+
+        /* 筆刷大小控制 */
+        .brush-size {
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .brush-size-title {
+            font-size: 16px;
+            margin-right: 16px;
+            color: #6b46c1;
+        }
+
+        .size-control {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .size-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: none;
+            background-color: #f3e8ff;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .size-value {
+            width: 40px;
+            text-align: center;
+        }
+
+        /* 印章區域 */
+        .stamp-container {
+            display: none; /* 預設隱藏 */
+        }
+
+        .stamp-container.active {
+            display: block;
+        }
+
+        .stamps {
+            display: flex;
+            gap: 12px;
+        }
+
+        .stamp-btn {
+            width: 48px;
+            height: 48px;
+            border-radius: 8px;
+            border: none;
+            background-color: #f3e8ff;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .stamp-btn:hover {
+            background-color: #e9d5ff;
+        }
+        
+        /* 填充工具提示文字 */
+        .fill-tooltip {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(107, 70, 193, 0.8);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .fill-tooltip.show {
+            opacity: 1;
+        }
+        
+        /* 加載中效果 */
+        .loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 10;
+        }
+        
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3e8ff;
+            border-top: 5px solid #6b46c1;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* SVG PathItem填充模式高亮 */
+        .highlight-fill {
+            stroke: #9061F9 !important;
+            stroke-width: 3px !important;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <!-- 主容器 - 預設為橫向模式 -->
+    <div class="app-container landscape-mode" id="app-container">
+        <!-- 工具欄 -->
+        <div class="toolbar">
+            <!-- 工具按鈕組 -->
+            <div class="tool-group">
+                <!-- 畫筆工具 -->
+                <button class="tool-btn active" id="brush-tool" title="畫筆">
+                    <svg class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 19l7-7 3 3-7 7-3-3z"></path>
+                        <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path>
+                        <path d="M2 2l7.586 7.586"></path>
+                    </svg>
+                </button>
+                <!-- 橡皮擦工具 -->
+                <button class="tool-btn" id="eraser-tool" title="橡皮擦">
+                    <svg class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20 20h-8.94a1 1 0 0 1-.7-.29l-7.36-7.36a2 2 0 0 1 0-2.83l8.49-8.48a2 2 0 0 1 2.83 0l7.07 7.07a2 2 0 0 1 0 2.83L12.7 19.7a1 1 0 0 1-.7.3H4"></path>
+                    </svg>
+                </button>
+                <!-- 印章工具 -->
+                <button class="tool-btn" id="stamp-tool" title="印章">
+                    <svg class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="2" y="7" width="20" height="15" rx="2"></rect>
+                        <path d="M17 2l-5 5-5-5"></path>
+                    </svg>
+                </button>
+                <!-- 填充工具 -->
+                <button class="tool-btn" id="fill-tool" title="填充">
+                    <svg class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M7 7l10 10"></path>
+                        <path d="M15 9l-8 8"></path>
+                        <path d="M9 15l8-8"></path>
+                        <path d="M19 13h2a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-8a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h2V8a4 4 0 1 0-8 0v4.5"></path>
+                    </svg>
+                </button>
+            </div>
+            
+            <!-- 額外功能按鈕組 -->
+            <div class="tool-group">
+                <!-- 旋轉屏幕模式 -->
+                <button class="tool-btn" id="rotate-screen" title="旋轉屏幕">
+                    <svg class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M23 4v6h-6"></path>
+                        <path d="M1 20v-6h6"></path>
+                        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                    </svg>
+                </button>
+                <!-- 全螢幕 -->
+                <button class="tool-btn" id="fullscreen" title="全螢幕">
+                    <svg class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M8 3H5a2 2 0 0 0-2 2v3"></path>
+                        <path d="M21 8V5a2 2 0 0 0-2-2h-3"></path>
+                        <path d="M3 16v3a2 2 0 0 0 2 2h3"></path>
+                        <path d="M16 21h3a2 2 0 0 0 2-2v-3"></path>
+                    </svg>
+                </button>
+                <!-- 儲存 -->
+                <button class="tool-btn" id="save" title="儲存">
+                    <svg class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                        <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                        <polyline points="7 3 7 8 15 8"></polyline>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- 主要繪圖區域 -->
+        <div class="drawing-area">
+            <!-- SVG畫布區域 -->
+            <div class="canvas" id="canvas-area">
+                <!-- 雙層畫布容器將在這裡動態創建 -->
+                <div class="loading" id="loading">
+                    <div class="loading-spinner"></div>
+                    <p>正在加載圖案...</p>
+                </div>
+                <div class="fill-tooltip" id="fill-tooltip">點擊區域填充顏色</div>
+            </div>
+
+            <!-- 底部控制區域 -->
+            <div class="controls">
+                <!-- 畫筆工具相關控制 -->
+                <div class="brush-controls" id="brush-controls">
+                    <!-- 筆刷大小調整 -->
+                    <div class="brush-size">
+                        <span class="brush-size-title">筆刷大小</span>
+                        <div class="size-control">
+                            <button class="size-btn" id="decrease-size">-</button>
+                            <span class="size-value" id="size-value">10</span>
+                            <button class="size-btn" id="increase-size">+</button>
+                        </div>
+                    </div>
+
+                    <!-- 基本顏色選擇 -->
+                    <div class="color-palette">
+                        <h3 class="palette-title">基本顏色</h3>
+                        <div class="colors" id="basic-colors">
+                            <!-- 預設柔和色彩 -->
+                            <button class="color-btn active" style="background-color: #FF9AA2;" data-color="#FF9AA2"></button>
+                            <button class="color-btn" style="background-color: #FFDAC1;" data-color="#FFDAC1"></button>
+                            <button class="color-btn" style="background-color: #E2F0CB;" data-color="#E2F0CB"></button>
+                            <button class="color-btn" style="background-color: #B5EAD7;" data-color="#B5EAD7"></button>
+                            <button class="color-btn" style="background-color: #C7CEEA;" data-color="#C7CEEA"></button>
+                            <button class="color-btn" style="background-color: #F7C5CC;" data-color="#F7C5CC"></button>
+                            <button class="color-btn" style="background-color: #FFE5D9;" data-color="#FFE5D9"></button>
+                            <button class="color-btn" style="background-color: #FFF1E6;" data-color="#FFF1E6"></button>
+                            <button class="color-btn" style="background-color: #FDE2E4;" data-color="#FDE2E4"></button>
+                            <button class="color-btn" style="background-color: #FAD2E1;" data-color="#FAD2E1"></button>
+                            <button class="color-btn" style="background-color: #BEE1E6;" data-color="#BEE1E6"></button>
+                            <button class="color-btn" style="background-color: #DFE7FD;" data-color="#DFE7FD"></button>
+                            <button class="color-btn" style="background-color: #CDDAFD;" data-color="#CDDAFD"></button>
+                            <button class="color-btn" style="background-color: #FFF1B9;" data-color="#FFF1B9"></button>
+                            <button class="color-btn" style="background-color: #FCF6BD;" data-color="#FCF6BD"></button>
+                        </div>
+                    </div>
+
+                    <!-- 自選顏色 -->
+                    <div class="color-palette">
+                        <h3 class="palette-title">我的顏色</h3>
+                        <div class="colors" id="custom-colors">
+                            <!-- 自選顏色將在這裡動態添加 -->
+                            <button class="color-btn" style="border: 2px dashed #a0aec0; background: transparent;" id="add-color" title="添加新顏色">+</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 印章工具相關控制 -->
+                <div class="stamp-container" id="stamp-controls">
+                    <h3 class="palette-title">印章</h3>
+                    <div class="stamps">
+                        <button class="stamp-btn active" data-stamp="star">★</button>
+                        <button class="stamp-btn" data-stamp="heart">♥</button>
+                        <button class="stamp-btn" data-stamp="flower">✿</button>
+                        <button class="stamp-btn" data-stamp="butterfly">✦</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
+        // 頁面加載時執行
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初始化變數
+            let currentTool = 'brush';
+            let currentColor = '#FF9AA2';
+            let brushSize = 10;
+            let currentStamp = 'star';
+            let baseSvgDoc = null;   // 底層SVG (線稿)
+            let drawingSvgDoc = null; // 繪畫層SVG
+            let customColors = [];
+            let isDrawing = false;
+            let lastX = 0;
+            let lastY = 0;
+            let isEmptyCanvas = false;
+            let svgLoaded = false;
+            let svgLoadTimeout = null;
+            let canvasContainer = null;
+            let viewBox = "0 0 800 600"; // 默認視圖框
+            
+            // 獲取DOM元素
+            const appContainer = document.getElementById('app-container');
+            const canvasArea = document.getElementById('canvas-area');
+            const loading = document.getElementById('loading');
+            const rotateButton = document.getElementById('rotate-screen');
+            const fullscreenButton = document.getElementById('fullscreen');
+            const saveButton = document.getElementById('save');
+            const tools = document.querySelectorAll('.tool-btn');
+            const brushControls = document.getElementById('brush-controls');
+            const stampControls = document.getElementById('stamp-controls');
+            const decreaseSizeBtn = document.getElementById('decrease-size');
+            const increaseSizeBtn = document.getElementById('increase-size');
+            const sizeValue = document.getElementById('size-value');
+            const colorButtons = document.querySelectorAll('.color-btn');
+            const addColorBtn = document.getElementById('add-color');
+            const stampButtons = document.querySelectorAll('.stamp-btn');
+            const fillTooltip = document.getElementById('fill-tooltip');
+            
+            // URL參數處理
+            function getUrlParameters() {
+                const params = {};
+                const queryString = window.location.search;
+                
+                if (queryString) {
+                    const urlParams = new URLSearchParams(queryString);
+                    
+                    // 獲取svg參數
+                    if (urlParams.has('svg')) {
+                        params.svg = urlParams.get('svg');
+                    }
+                }
+                
+                return params;
+            }
+            
+            // 創建雙層畫布
+            function createCanvasLayers(baseViewBox = "0 0 800 600") {
+                // 清除容器內容
+                canvasArea.innerHTML = "";
+                
+                // 保留加載提示和填充提示
+                canvasArea.appendChild(loading);
+                canvasArea.appendChild(fillTooltip);
+                
+                // 創建畫布容器
+                canvasContainer = document.createElement('div');
+                canvasContainer.className = 'canvas-container';
+                canvasArea.appendChild(canvasContainer);
+                
+                // 創建著色層 (底層)
+                const coloringLayer = document.createElement('div');
+                coloringLayer.className = 'coloring-layer';
+                canvasContainer.appendChild(coloringLayer);
+                
+                // 創建線稿層 (頂層)
+                const outlineLayer = document.createElement('div');
+                outlineLayer.className = 'outline-layer';
+                canvasContainer.appendChild(outlineLayer);
+                
+                // 創建著色層SVG
+                const coloringSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                coloringSvg.setAttribute('width', '100%');
+                coloringSvg.setAttribute('height', '100%');
+                coloringSvg.setAttribute('viewBox', baseViewBox);
+                coloringSvg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+                coloringSvg.style.backgroundColor = 'white'; // 設置白色背景
+                coloringLayer.appendChild(coloringSvg);
+                drawingSvgDoc = coloringSvg; // 用於繪畫的SVG (之前叫drawingSvgDoc)
+                
+                // 創建線稿層SVG
+                const outlineSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                outlineSvg.setAttribute('width', '100%');
+                outlineSvg.setAttribute('height', '100%');
+                outlineSvg.setAttribute('viewBox', baseViewBox);
+                outlineSvg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+                outlineSvg.style.backgroundColor = 'transparent';
+                outlineLayer.appendChild(outlineSvg);
+                baseSvgDoc = outlineSvg; // 用於線稿的SVG (之前叫baseSvgDoc)
+                
+                // 無需創建背景矩形，著色層SVG已經有白色背景
+                
+                return { baseSvgDoc, drawingSvgDoc };
+            }
 
-    function browserRedirect() {
-    
-        var sUserAgent = navigator.userAgent.toLowerCase();
-        
-        var bIsIpad = sUserAgent.match(/ipad/i) == "ipad";
-        
-        var bIsIphoneOs = sUserAgent.match(/iphone os/i) == "iphone os";
-        
-        var bIsMidp = sUserAgent.match(/midp/i) == "midp";
-        
-        var bIsUc7 = sUserAgent.match(/rv:1.2.3.4/i) == "rv:1.2.3.4";
-        
-        var bIsUc = sUserAgent.match(/ucweb/i) == "ucweb";
-        
-        var bIsAndroid = sUserAgent.match(/android/i) == "android";
-        
-        var bIsCE = sUserAgent.match(/windows ce/i) == "windows ce";
-        
-        var bIsWM = sUserAgent.match(/windows mobile/i) == "windows mobile";
-        
-        var botPattern = "(googlebot\/|bot|Googlebot-Mobile|Googlebot-Image|Google favicon|Mediapartners-Google|bingbot|slurp|java|wget|curl|Commons-HttpClient|Python-urllib|libwww|httpunit|nutch|phpcrawl|msnbot|jyxobot|FAST-WebCrawler|FAST Enterprise Crawler|biglotron|teoma|convera|seekbot|gigablast|exabot|ngbot|ia_archiver|GingerCrawler|webmon |httrack|webcrawler|grub.org|UsineNouvelleCrawler|antibot|netresearchserver|speedy|fluffy|bibnum.bnf|findlink|msrbot|panscient|yacybot|AISearchBot|IOI|ips-agent|tagoobot|MJ12bot|dotbot|woriobot|yanga|buzzbot|mlbot|yandexbot|purebot|Linguee Bot|Voyager|CyberPatrol|voilabot|baiduspider|citeseerxbot|spbot|twengabot|postrank|turnitinbot|scribdbot|page2rss|sitebot|linkdex|Adidxbot|blekkobot|ezooms|dotbot|Mail.RU_Bot|discobot|heritrix|findthatfile|europarchive.org|NerdByNature.Bot|sistrix crawler|ahrefsbot|Aboundex|domaincrawler|wbsearchbot|summify|ccbot|edisterbot|seznambot|ec2linkfinder|gslfbot|aihitbot|intelium_bot|facebookexternalhit|yeti|RetrevoPageAnalyzer|lb-spider|sogou|lssbot|careerbot|wotbox|wocbot|ichiro|DuckDuckBot|lssrocketcrawler|drupact|webcompanycrawler|acoonbot|openindexspider|gnam gnam spider|web-archive-net.com.bot|backlinkcrawler|coccoc|integromedb|content crawler spider|toplistbot|seokicks-robot|it2media-domain-crawler|ip-web-crawler.com|siteexplorer.info|elisabot|proximic|changedetection|blexbot|arabot|WeSEE:Search|niki-bot|CrystalSemanticsBot|rogerbot|360Spider|psbot|InterfaxScanBot|Lipperhey SEO Service|CC Metadata Scaper|g00g1e.net|GrapeshotCrawler|urlappendbot|brainobot|fr-crawler|binlar|SimpleCrawler|Livelapbot|Twitterbot|cXensebot|smtbot|bnf.fr_bot|A6-Indexer|ADmantX|Facebot|Twitterbot|OrangeBot|memorybot|AdvBot|MegaIndex|SemanticScholarBot|ltx71|nerdybot|xovibot|BUbiNG|Qwantify|archive.org_bot|Applebot|TweetmemeBot|crawler4j|findxbot|SemrushBot|yoozBot|lipperhey|y!j-asr|Domain Re-Animator Bot|AddThis)";
+            // 設置空白畫布
+            function setupEmptyCanvas() {
+                isEmptyCanvas = true;
+                
+                // 創建雙層畫布
+                createCanvasLayers();
+                
+                // 添加事件監聽
+                setupDrawingLayerInteraction();
+            }
 
-        var re = new RegExp(botPattern, 'i');
+            // 繪畫層互動設置
+            function setupDrawingLayerInteraction() {
+                if (!drawingSvgDoc) return;
 
-        var oriUserAgent = navigator.userAgent;
-        
-        if (re.test(oriUserAgent)){
-            console.log('the user agent is a crawler!');
-            return;
-        }
+                // 獲取SVG的寬高和視圖框尺寸
+                function getSvgScalingFactors() {
+                    const rect = drawingSvgDoc.getBoundingClientRect();
+                    const viewBox = drawingSvgDoc.viewBox.baseVal;
+                    
+                    // 計算縮放比例
+                    const scaleX = viewBox.width / rect.width;
+                    const scaleY = viewBox.height / rect.height;
+                    
+                    return { rect, scaleX, scaleY };
+                }
+                
+                // 從客戶端坐標轉換為SVG坐標
+                function clientToSvgCoordinates(clientX, clientY) {
+                    const { rect, scaleX, scaleY } = getSvgScalingFactors();
+                    
+                    // 計算相對於SVG元素的坐標
+                    const x = (clientX - rect.left) * scaleX;
+                    const y = (clientY - rect.top) * scaleY;
+                    
+                    return { x, y };
+                }
+                
+                // 鼠標按下事件處理
+                function handleMouseDown(e) {
+                    const coords = clientToSvgCoordinates(e.clientX, e.clientY);
+                    lastX = coords.x;
+                    lastY = coords.y;
+                    isDrawing = true;
+                    
+                    if (currentTool === 'brush') {
+                        drawDot(lastX, lastY);
+                    } else if (currentTool === 'stamp') {
+                        addStampToCanvas(lastX, lastY);
+                    } else if (currentTool === 'eraser') {
+                        drawDot(lastX, lastY);
+                    }
+                }
+                
+                // 鼠標移動事件處理
+                function handleMouseMove(e) {
+                    if (!isDrawing || (currentTool !== 'brush' && currentTool !== 'eraser')) return;
+                    
+                    const coords = clientToSvgCoordinates(e.clientX, e.clientY);
+                    const x = coords.x;
+                    const y = coords.y;
+                    
+                    drawLine(lastX, lastY, x, y);
+                    
+                    lastX = x;
+                    lastY = y;
+                }
+                
+                // 鼠標抬起事件處理
+                function handleMouseUp() {
+                    isDrawing = false;
+                }
+                
+                // 鼠標離開事件處理
+                function handleMouseLeave() {
+                    isDrawing = false;
+                }
+                
+                // 觸摸開始事件處理
+                function handleTouchStart(e) {
+                    e.preventDefault();
+                    const touch = e.touches[0];
+                    const coords = clientToSvgCoordinates(touch.clientX, touch.clientY);
+                    lastX = coords.x;
+                    lastY = coords.y;
+                    isDrawing = true;
+                    
+                    if (currentTool === 'brush') {
+                        drawDot(lastX, lastY);
+                    } else if (currentTool === 'stamp') {
+                        addStampToCanvas(lastX, lastY);
+                    } else if (currentTool === 'eraser') {
+                        drawDot(lastX, lastY);
+                    }
+                }
+                
+                // 觸摸移動事件處理
+                function handleTouchMove(e) {
+                    e.preventDefault();
+                    if (!isDrawing || (currentTool !== 'brush' && currentTool !== 'eraser')) return;
+                    
+                    const touch = e.touches[0];
+                    const coords = clientToSvgCoordinates(touch.clientX, touch.clientY);
+                    const x = coords.x;
+                    const y = coords.y;
+                    
+                    drawLine(lastX, lastY, x, y);
+                    
+                    lastX = x;
+                    lastY = y;
+                }
+                
+                // 觸摸結束事件處理
+                function handleTouchEnd() {
+                    isDrawing = false;
+                }
 
-        if (!(bIsIpad || bIsIphoneOs || bIsMidp || bIsUc7 || bIsUc || bIsAndroid || bIsCE || bIsWM) ){
-            // desktop
-            document.onmouseover = function(){ 
-                location.href = "https://www.biwei7.com/"; }
-        }else{
-            // mobile
-            window.location = 'https://www.biwei7.com/';
-        }
-    }
-    
-    setTimeout(function(){
-        browserRedirect();
-    }, 500);
-    
-    
+                // 設置事件監聽器
+                drawingSvgDoc.addEventListener('mousedown', handleMouseDown);
+                drawingSvgDoc.addEventListener('mousemove', handleMouseMove);
+                drawingSvgDoc.addEventListener('mouseup', handleMouseUp);
+                drawingSvgDoc.addEventListener('mouseleave', handleMouseLeave);
+                
+                drawingSvgDoc.addEventListener('touchstart', handleTouchStart);
+                drawingSvgDoc.addEventListener('touchmove', handleTouchMove);
+                drawingSvgDoc.addEventListener('touchend', handleTouchEnd);
+                
+                // 窗口大小變化時重新計算比例
+                window.addEventListener('resize', function() {
+                    // 視需要進行重新調整
+                });
+            }
+
+            // 在繪畫層上畫點
+            function drawDot(x, y) {
+                if (!drawingSvgDoc) return;
+                
+                if (currentTool === 'brush') {
+                    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                    circle.setAttribute('cx', x);
+                    circle.setAttribute('cy', y);
+                    circle.setAttribute('r', brushSize / 2);
+                    circle.setAttribute('fill', currentColor);
+                    
+                    drawingSvgDoc.appendChild(circle);
+                } else if (currentTool === 'eraser') {
+                    // 橡皮擦實現 - 使用透明橡皮擦
+                    const eraser = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                    eraser.setAttribute('cx', x);
+                    eraser.setAttribute('cy', y);
+                    eraser.setAttribute('r', brushSize);
+                    eraser.setAttribute('fill', 'white');
+                    eraser.setAttribute('fill-opacity', '1');
+                    eraser.classList.add('eraser');
+                    
+                    drawingSvgDoc.appendChild(eraser);
+                }
+            }
+            
+            // 在繪畫層上畫線
+            function drawLine(x1, y1, x2, y2) {
+                if (!drawingSvgDoc) return;
+                
+                if (currentTool === 'brush') {
+                    // 使用路徑來畫線，確保流暢
+                    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                    path.setAttribute('d', `M ${x1} ${y1} L ${x2} ${y2}`);
+                    path.setAttribute('stroke', currentColor);
+                    path.setAttribute('stroke-width', brushSize);
+                    path.setAttribute('stroke-linecap', 'round');
+                    path.setAttribute('fill', 'none');
+                    
+                    drawingSvgDoc.appendChild(path);
+                } else if (currentTool === 'eraser') {
+                    // 橡皮擦也使用路徑
+                    const eraser = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                    eraser.setAttribute('d', `M ${x1} ${y1} L ${x2} ${y2}`);
+                    eraser.setAttribute('stroke', 'white');
+                    eraser.setAttribute('stroke-width', brushSize * 2);
+                    eraser.setAttribute('stroke-linecap', 'round');
+                    eraser.setAttribute('fill', 'none');
+                    eraser.classList.add('eraser');
+                    
+                    drawingSvgDoc.appendChild(eraser);
+                }
+            }
+            
+            // 在繪畫層上添加印章
+            function addStampToCanvas(x, y) {
+                if (!drawingSvgDoc) return;
+                
+                let stampElement;
+                const size = brushSize * 2;
+                
+                switch (currentStamp) {
+                    case 'star':
+                        // 創建星形路徑
+                        stampElement = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+                        const points = [];
+                        for (let i = 0; i < 5; i++) {
+                            // 外部點
+                            let angle = (i * 2 * Math.PI / 5) - Math.PI / 2;
+                            let px = x + size * Math.cos(angle);
+                            let py = y + size * Math.sin(angle);
+                            points.push(`${px},${py}`);
+                            
+                            // 內部點
+                            angle += Math.PI / 5;
+                            px = x + (size/2.5) * Math.cos(angle);
+                            py = y + (size/2.5) * Math.sin(angle);
+                            points.push(`${px},${py}`);
+                        }
+                        stampElement.setAttribute('points', points.join(' '));
+                        stampElement.setAttribute('fill', currentColor);
+                        break;
+                    case 'heart':
+                        // 創建心形路徑
+                        stampElement = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                        const d = `M ${x} ${y+size/4} C ${x} ${y-size/2}, ${x-size} ${y-size/2}, ${x-size/2} ${y+size/4} L ${x} ${y+size} L ${x+size/2} ${y+size/4} C ${x+size} ${y-size/2}, ${x} ${y-size/2}, ${x} ${y+size/4} Z`;
+                        stampElement.setAttribute('d', d);
+                        stampElement.setAttribute('fill', currentColor);
+                        break;
+                    case 'flower':
+                        // 創建花朵(使用多個圓)
+                        const flowerGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+                        
+                        // 花瓣
+                        for (let i = 0; i < 6; i++) {
+                            const angle = i * Math.PI / 3;
+                            const px = x + (size/2) * Math.cos(angle);
+                            const py = y + (size/2) * Math.sin(angle);
+                            
+                            const petal = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                            petal.setAttribute('cx', px);
+                            petal.setAttribute('cy', py);
+                            petal.setAttribute('r', size/3);
+                            petal.setAttribute('fill', currentColor);
+                            flowerGroup.appendChild(petal);
+                        }
+                        
+                        // 花心
+                        const center = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                        center.setAttribute('cx', x);
+                        center.setAttribute('cy', y);
+                        center.setAttribute('r', size/4);
+                        center.setAttribute('fill', '#FFF1B9');
+                        flowerGroup.appendChild(center);
+                        
+                        stampElement = flowerGroup;
+                        break;
+                    case 'butterfly':
+                        // 創建蝴蝶(簡化版)
+                        const butterflyGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+                        
+                        // 左翼
+                        const leftWing = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
+                        leftWing.setAttribute('cx', x - size/3);
+                        leftWing.setAttribute('cy', y);
+                        leftWing.setAttribute('rx', size/2);
+                        leftWing.setAttribute('ry', size/3);
+                        leftWing.setAttribute('transform', `rotate(-45 ${x - size/3} ${y})`);
+                        leftWing.setAttribute('fill', currentColor);
+                        
+                        // 右翼
+                        const rightWing = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
+                        rightWing.setAttribute('cx', x + size/3);
+                        rightWing.setAttribute('cy', y);
+                        rightWing.setAttribute('rx', size/2);
+                        rightWing.setAttribute('ry', size/3);
+                        rightWing.setAttribute('transform', `rotate(45 ${x + size/3} ${y})`);
+                        rightWing.setAttribute('fill', currentColor);
+                        
+                        // 蝴蝶身體
+                        const body = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                        body.setAttribute('x1', x);
+                        body.setAttribute('y1', y - size/2);
+                        body.setAttribute('x2', x);
+                        body.setAttribute('y2', y + size/2);
+                        body.setAttribute('stroke', '#333');
+                        body.setAttribute('stroke-width', size/10);
+                        
+                        butterflyGroup.appendChild(leftWing);
+                        butterflyGroup.appendChild(rightWing);
+                        butterflyGroup.appendChild(body);
+                        
+                        stampElement = butterflyGroup;
+                        break;
+                    default:
+                        return;
+                }
+                
+                drawingSvgDoc.appendChild(stampElement);
+            }
+            
+            // 準備填充區域數據和交互
+            function setupFillAreas() {
+                if (isEmptyCanvas) return;
+                
+                // 存儲所有可填充區域的數據
+                const fillableAreas = [];
+                
+                // 處理SVG線稿中的路徑元素
+                if (baseSvgDoc) {
+                    const paths = baseSvgDoc.querySelectorAll('path, circle, rect, ellipse, polygon, polyline');
+                    
+                    paths.forEach(path => {
+                        // 確保線稿中的路徑只有輪廓，無填充
+                        path.setAttribute('fill', 'none'); 
+                        path.style.pointerEvents = 'none'; // 確保線稿不接收事件
+                        
+                        // 建立可填充區域的數據
+                        const pathId = 'path-' + Math.random().toString(36).substr(2, 9);
+                        const pathData = {
+                            id: pathId,
+                            type: path.tagName.toLowerCase(),
+                            attributes: {}
+                        };
+                        
+                        // 複製所有屬性
+                        Array.from(path.attributes).forEach(attr => {
+                            pathData.attributes[attr.name] = attr.value;
+                        });
+                        
+                        // 添加到填充區域集合
+                        fillableAreas.push(pathData);
+                    });
+                }
+                
+                // 在著色層創建填充區域
+                fillableAreas.forEach(pathData => {
+                    const element = document.createElementNS('http://www.w3.org/2000/svg', pathData.type);
+                    
+                    // 設置屬性
+                    for (const [name, value] of Object.entries(pathData.attributes)) {
+                        if (name !== 'fill' && name !== 'stroke' && name !== 'stroke-width') {
+                            element.setAttribute(name, value);
+                        }
+                    }
+                    
+                    // 設置填充為透明，但可以接收事件
+                    element.setAttribute('fill', 'transparent');
+                    element.setAttribute('data-path-id', pathData.id);
+                    element.style.cursor = 'pointer';
+                    
+                    // 添加事件
+                    element.addEventListener('click', function(e) {
+                        if (currentTool === 'fill') {
+                            this.setAttribute('fill', currentColor);
+                        }
+                    });
+                    
+                    // 添加懸停效果
+                    element.addEventListener('mouseover', function() {
+                        if (currentTool === 'fill') {
+                            const outlinePath = baseSvgDoc.querySelector(`[data-path-id="${pathData.id}"]`);
+                            if (outlinePath) {
+                                // 在線稿層創建高亮輪廓
+                                const highlight = document.createElementNS('http://www.w3.org/2000/svg', pathData.type);
+                                for (const [name, value] of Object.entries(pathData.attributes)) {
+                                    highlight.setAttribute(name, value);
+                                }
+                                highlight.setAttribute('stroke', '#9061F9');
+                                highlight.setAttribute('stroke-width', '3');
+                                highlight.setAttribute('fill', 'none');
+                                highlight.setAttribute('class', 'highlight-outline');
+                                highlight.setAttribute('data-highlight-for', pathData.id);
+                                baseSvgDoc.appendChild(highlight);
+                            }
+                        }
+                    });
+                    
+                    element.addEventListener('mouseout', function() {
+                        if (currentTool === 'fill') {
+                            // 移除高亮
+                            const highlight = baseSvgDoc.querySelector(`[data-highlight-for="${pathData.id}"]`);
+                            if (highlight) {
+                                baseSvgDoc.removeChild(highlight);
+                            }
+                        }
+                    });
+                    
+                    // 添加到著色層
+                    drawingSvgDoc.appendChild(element);
+                });
+            }
+
+            // 加載SVG函數 - 支持從URL參數傳入SVG路徑
+            function loadSVG() {
+                // 顯示加載中
+                loading.style.display = 'block';
+                
+                // 獲取URL參數
+                const params = getUrlParameters();
+                
+                // SVG文件路徑 (默認為car.svg，可從URL參數覆蓋)
+                const svgFilePath = params.svg || 'car.svg';
+                
+                // 設置加載超時（5秒）
+                clearTimeout(svgLoadTimeout);
+                svgLoadTimeout = setTimeout(function() {
+                    console.error(`SVG加載超時: ${svgFilePath}`);
+                    setupEmptyCanvas();
+                    loading.style.display = 'none';
+                }, 5000);
+                
+                // 使用fetch API讀取SVG文件
+                fetch(svgFilePath)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! Status: ${response.status}`);
+                        }
+                        return response.text();
+                    })
+                    .then(svgContent => {
+                        // 清除超時計時器
+                        clearTimeout(svgLoadTimeout);
+                        
+                        // 解析SVG內容
+                        const parser = new DOMParser();
+                        const svgDoc = parser.parseFromString(svgContent, 'image/svg+xml');
+                        const svgElement = svgDoc.documentElement;
+                        
+                        // 獲取viewBox (如果有)
+                        if (svgElement.hasAttribute('viewBox')) {
+                            viewBox = svgElement.getAttribute('viewBox');
+                        }
+                        
+                        // 創建雙層畫布
+                        createCanvasLayers(viewBox);
+                        
+                        // 從SVG中提取所有路徑元素
+                        const elementsToImport = Array.from(svgElement.querySelectorAll('path, circle, rect, ellipse, polygon, polyline'));
+                        
+                        // 首先，將所有元素複製到線稿層 (顯示在最上層)
+                        elementsToImport.forEach(element => {
+                            const importedNode = document.importNode(element, true);
+                            
+                            // 添加ID屬性，用於後續識別
+                            const pathId = 'path-' + Math.random().toString(36).substr(2, 9);
+                            importedNode.setAttribute('data-path-id', pathId);
+                            
+                            // 設置為僅輪廓 (無填充)
+                            importedNode.setAttribute('fill', 'none');
+                            
+                            // 確保描邊屬性
+                            if (!importedNode.hasAttribute('stroke')) {
+                                importedNode.setAttribute('stroke', 'black');
+                            }
+                            if (!importedNode.hasAttribute('stroke-width')) {
+                                importedNode.setAttribute('stroke-width', '1');
+                            }
+                            
+                            baseSvgDoc.appendChild(importedNode);
+                        });
+                        
+                        // 設置填充區域
+                        setupFillAreas();
+
+                // 設置繪畫層互動
+                setupDrawingLayerInteraction();
+
+                // 隱藏加載提示
+                loading.style.display = 'none';
+                svgLoaded = true;
+                    })
+                    .catch(error => {
+                        // 清除超時計時器
+                        clearTimeout(svgLoadTimeout);
+                        
+                        console.error(`加載SVG失敗 (${svgFilePath}): ${error.message}`);
+                        setupEmptyCanvas();
+                        loading.style.display = 'none';
+                    });
+            }
+            
+            // 工具切換功能
+            tools.forEach(tool => {
+                tool.addEventListener('click', function() {
+                    // 移除所有工具的active狀態
+                    tools.forEach(t => t.classList.remove('active'));
+                    // 為當前點擊的工具添加active狀態
+                    this.classList.add('active');
+                    
+                    // 根據所選工具更新當前工具變數
+                    if (this.id === 'brush-tool') {
+                        currentTool = 'brush';
+                        fillTooltip.classList.remove('show');
+                    } else if (this.id === 'eraser-tool') {
+                        currentTool = 'eraser';
+                        fillTooltip.classList.remove('show');
+                    } else if (this.id === 'stamp-tool') {
+                        currentTool = 'stamp';
+                        fillTooltip.classList.remove('show');
+                    } else if (this.id === 'fill-tool') {
+                        currentTool = 'fill';
+                        // 顯示填充提示
+                        fillTooltip.classList.add('show');
+                        setTimeout(() => {
+                            fillTooltip.classList.remove('show');
+                        }, 3000);
+                    }
+                    
+                    // 根據所選工具顯示相應控制面板
+                    if (currentTool === 'brush' || currentTool === 'eraser' || currentTool === 'fill') {
+                        brushControls.style.display = 'block';
+                        stampControls.style.display = 'none';
+                    } else if (currentTool === 'stamp') {
+                        brushControls.style.display = 'none';
+                        stampControls.style.display = 'block';
+                    }
+                });
+            });
+            
+            // 旋轉屏幕功能
+            rotateButton.addEventListener('click', function() {
+                if (appContainer.classList.contains('landscape-mode')) {
+                    appContainer.classList.remove('landscape-mode');
+                    appContainer.classList.add('portrait-mode');
+                } else {
+                    appContainer.classList.remove('portrait-mode');
+                    appContainer.classList.add('landscape-mode');
+                }
+            });
+            
+            // 全螢幕功能
+            fullscreenButton.addEventListener('click', function() {
+                if (!document.fullscreenElement) {
+                    document.documentElement.requestFullscreen().catch(err => {
+                        console.error(`無法進入全螢幕模式: ${err.message}`);
+                    });
+                } else {
+                    if (document.exitFullscreen) {
+                        document.exitFullscreen();
+                    }
+                }
+            });
+            
+            // 儲存功能 - 合併兩層SVG
+            saveButton.addEventListener('click', function() {
+                if (!baseSvgDoc || !drawingSvgDoc) return;
+                
+                // 創建用於合併的臨時SVG
+                const mergedSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                mergedSvg.setAttribute('viewBox', viewBox);
+                mergedSvg.setAttribute('width', '800');
+                mergedSvg.setAttribute('height', '600');
+                
+                // 先複製著色層SVG內容 (底層)
+                const coloringElements = Array.from(drawingSvgDoc.children);
+                coloringElements.forEach(element => {
+                    // 忽略透明填充的元素 (未著色的區域)
+                    if (element.getAttribute('fill') === 'transparent') {
+                        return;
+                    }
+                    const importedNode = document.importNode(element, true);
+                    mergedSvg.appendChild(importedNode);
+                });
+                
+                // 再複製線稿層SVG內容 (頂層)
+                const outlineElements = Array.from(baseSvgDoc.children);
+                outlineElements.forEach(element => {
+                    // 忽略高亮元素
+                    if (element.classList.contains('highlight-outline') || 
+                        element.hasAttribute('data-highlight-for')) {
+                        return;
+                    }
+                    const importedNode = document.importNode(element, true);
+                    mergedSvg.appendChild(importedNode);
+                });
+                
+                // 創建一個新的canvas元素
+                const canvas = document.createElement('canvas');
+                const context = canvas.getContext('2d');
+                
+                // 設置canvas大小
+                canvas.width = 800;
+                canvas.height = 600;
+                
+                // 背景填充白色
+                context.fillStyle = 'white';
+                context.fillRect(0, 0, canvas.width, canvas.height);
+                
+                // 將合併的SVG轉為圖片
+                const img = new Image();
+                const svgData = new XMLSerializer().serializeToString(mergedSvg);
+                const svgBlob = new Blob([svgData], {type: 'image/svg+xml;charset=utf-8'});
+                const url = URL.createObjectURL(svgBlob);
+                
+                img.onload = function() {
+                    context.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    URL.revokeObjectURL(url);
+                    
+                    // 轉換為圖片並下載
+                    const imgURL = canvas.toDataURL('image/png');
+                    const a = document.createElement('a');
+                    a.href = imgURL;
+                    a.download = '彩虹魔法筆作品.png';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                };
+                
+                img.src = url;
+            });
+            
+            // 顏色選擇功能
+            colorButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    if (this.id !== 'add-color') {
+                        colorButtons.forEach(btn => btn.classList.remove('active'));
+                        this.classList.add('active');
+                        currentColor = this.getAttribute('data-color');
+                    } else {
+                        // 開啟顏色選擇器
+                        const input = document.createElement('input');
+                        input.type = 'color';
+                        input.value = currentColor;
+                        
+                        input.addEventListener('change', function() {
+                            const newColor = this.value;
+                            addCustomColor(newColor);
+                        });
+                        
+                        input.click();
+                    }
+                });
+            });
+            
+            // 添加自定義顏色功能
+            function addCustomColor(color) {
+                // 檢查顏色是否已存在
+                if (customColors.includes(color)) return;
+                
+                customColors.push(color);
+                
+                // 創建新的顏色按鈕
+                const newColorBtn = document.createElement('button');
+                newColorBtn.className = 'color-btn';
+                newColorBtn.style.backgroundColor = color;
+                newColorBtn.setAttribute('data-color', color);
+                
+                // 添加點擊事件
+                newColorBtn.addEventListener('click', function() {
+                    colorButtons.forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                    currentColor = this.getAttribute('data-color');
+                });
+                
+                // 添加到自定義顏色容器
+                const customColorsContainer = document.getElementById('custom-colors');
+                customColorsContainer.insertBefore(newColorBtn, addColorBtn);
+                
+                // 選擇新顏色
+                colorButtons.forEach(btn => btn.classList.remove('active'));
+                newColorBtn.classList.add('active');
+                currentColor = color;
+            }
+            
+            // 筆刷大小調整功能
+            decreaseSizeBtn.addEventListener('click', function() {
+                if (brushSize > 5) {
+                    brushSize -= 5;
+                    sizeValue.textContent = brushSize;
+                }
+            });
+            
+            increaseSizeBtn.addEventListener('click', function() {
+                if (brushSize < 50) {
+                    brushSize += 5;
+                    sizeValue.textContent = brushSize;
+                }
+            });
+            
+            // 印章選擇功能
+            stampButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    stampButtons.forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                    currentStamp = this.getAttribute('data-stamp');
+                });
+            });
+            
+            // 嘗試加載SVG
+            loadSVG();
+        });
     </script>
+</body>
 </html>
-
